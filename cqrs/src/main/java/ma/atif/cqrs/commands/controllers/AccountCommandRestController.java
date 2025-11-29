@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/commands/accounts")
@@ -27,5 +28,10 @@ public class AccountCommandRestController {
                 request.getCurrency()
         ));
         return response;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public String exceptionHandler(Exception exception){
+        return exception.getMessage();
     }
 }
