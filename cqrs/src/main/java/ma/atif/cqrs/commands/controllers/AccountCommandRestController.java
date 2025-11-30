@@ -4,9 +4,11 @@ package ma.atif.cqrs.commands.controllers;
 import ma.atif.cqrs.commands.commands.AddAccountCommand;
 import ma.atif.cqrs.commands.commands.CreditAccountCommand;
 import ma.atif.cqrs.commands.commands.DebitAccountCommand;
+import ma.atif.cqrs.commands.commands.UpdateAccountStatusCommand;
 import ma.atif.cqrs.commands.dto.AddAccountRequestDTO;
 import ma.atif.cqrs.commands.dto.CreditAccountDTO;
 import ma.atif.cqrs.commands.dto.DebitAccountDTO;
+import ma.atif.cqrs.commands.dto.UpdateAccountStatusDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,6 +66,15 @@ public class AccountCommandRestController {
                 request.accountId(),
                 request.amount(),
                 request.Currency()
+        ));
+        return result;
+    }
+
+    @PutMapping("/changeStatus")
+    public CompletableFuture<String> changeStatus(@RequestBody UpdateAccountStatusDTO request){
+        CompletableFuture<String> result = this.commandGateway.send(new UpdateAccountStatusCommand(
+                request.accountId(),
+                request.status()
         ));
         return result;
     }

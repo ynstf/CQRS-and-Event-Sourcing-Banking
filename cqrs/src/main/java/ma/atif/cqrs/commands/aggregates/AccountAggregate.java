@@ -7,11 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import ma.atif.cqrs.commands.commands.AddAccountCommand;
 import ma.atif.cqrs.commands.commands.CreditAccountCommand;
 import ma.atif.cqrs.commands.commands.DebitAccountCommand;
+import ma.atif.cqrs.commands.commands.UpdateAccountStatusCommand;
 import ma.atif.cqrs.commands.enums.AccountStatus;
-import ma.atif.cqrs.events.AccountActivatedEvent;
-import ma.atif.cqrs.events.AccountCreatedEvent;
-import ma.atif.cqrs.events.AccountCreditedEvent;
-import ma.atif.cqrs.events.AccountDebitedEvent;
+import ma.atif.cqrs.events.*;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -91,7 +89,7 @@ public class AccountAggregate {
         this.currentBalance = this.currentBalance + event.getAmount();
     }
 
-    // credit amount
+    // debit amount
     @CommandHandler
     public void handleCommand(DebitAccountCommand command){
         log.info("DebitAccountCommand Command Received");
@@ -116,6 +114,30 @@ public class AccountAggregate {
         this.accountId =event.getAccountId();
         this.currentBalance = this.currentBalance - event.getAmount();
         log.info(String.valueOf(this.currentBalance));
+    }
+
+
+
+    // change status
+    @CommandHandler
+    public void handleCommand(UpdateAccountStatusCommand command){
+        log.info("UpdateAccountStatusCommand Command Received");
+
+
+        if (status == command.getStatus()) throw  new RuntimeException("This account"+command.getId()+" is already the "+status+ " state");
+
+
+        AggregateLifecycle.apply(new AccountStatusUpdatedEvent(
+                command.getId(),
+                command.getStatus()
+        ));
+
+    }
+    @EventSourcingHandler
+    public void on(AccountStatusUpdatedEvent event){
+        log.info("AccountCreatedEvent occured");
+        this.accountId =event.getAccountId();
+        this.status = event.getStatus();
     }
 
 
