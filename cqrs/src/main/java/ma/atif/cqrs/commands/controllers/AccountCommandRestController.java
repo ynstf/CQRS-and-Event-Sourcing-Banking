@@ -3,8 +3,10 @@ package ma.atif.cqrs.commands.controllers;
 
 import ma.atif.cqrs.commands.commands.AddAccountCommand;
 import ma.atif.cqrs.commands.commands.CreditAccountCommand;
+import ma.atif.cqrs.commands.commands.DebitAccountCommand;
 import ma.atif.cqrs.commands.dto.AddAccountRequestDTO;
 import ma.atif.cqrs.commands.dto.CreditAccountDTO;
+import ma.atif.cqrs.commands.dto.DebitAccountDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +51,16 @@ public class AccountCommandRestController {
     @PostMapping("/credit")
     public CompletableFuture<String> creditAccount(@RequestBody CreditAccountDTO request){
         CompletableFuture<String> result = this.commandGateway.send(new CreditAccountCommand(
+                request.accountId(),
+                request.amount(),
+                request.Currency()
+        ));
+        return result;
+    }
+
+    @PostMapping("/debit")
+    public CompletableFuture<String> debitAccount(@RequestBody DebitAccountDTO request){
+        CompletableFuture<String> result = this.commandGateway.send(new DebitAccountCommand(
                 request.accountId(),
                 request.amount(),
                 request.Currency()

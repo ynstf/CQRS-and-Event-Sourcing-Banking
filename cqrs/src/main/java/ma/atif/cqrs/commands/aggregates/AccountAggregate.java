@@ -6,10 +6,12 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ma.atif.cqrs.commands.commands.AddAccountCommand;
 import ma.atif.cqrs.commands.commands.CreditAccountCommand;
+import ma.atif.cqrs.commands.commands.DebitAccountCommand;
 import ma.atif.cqrs.commands.enums.AccountStatus;
 import ma.atif.cqrs.events.AccountActivatedEvent;
 import ma.atif.cqrs.events.AccountCreatedEvent;
 import ma.atif.cqrs.events.AccountCreditedEvent;
+import ma.atif.cqrs.events.AccountDebitedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -87,6 +89,33 @@ public class AccountAggregate {
         log.info("AccountCreatedEvent occured");
         this.accountId =event.getAccountId();
         this.currentBalance = this.currentBalance + event.getAmount();
+    }
+
+    // credit amount
+    @CommandHandler
+    public void handleCommand(DebitAccountCommand command){
+        log.info("DebitAccountCommand Command Received");
+        log.info(String.valueOf(status));
+        log.info(String.valueOf(status.equals(AccountStatus.ACTIVATED)));
+
+
+        if (!status.equals(AccountStatus.ACTIVATED)) throw  new RuntimeException("This account can not be credited because of the account is not activated. The current status is "+status);
+        if (command.getAmount()<0) throw  new IllegalArgumentException("Amount negative exception");
+        if (command.getAmount()>currentBalance) throw  new RuntimeException("Balance not sufficient");
+
+        AggregateLifecycle.apply(new AccountDebitedEvent(
+                command.getId(),
+                command.getAmount(),
+                command.getCurrency()
+        ));
+
+    }
+    @EventSourcingHandler
+    public void on(AccountDebitedEvent event){
+        log.info("AccountCreatedEvent occured");
+        this.accountId =event.getAccountId();
+        this.currentBalance = this.currentBalance - event.getAmount();
+        log.info(String.valueOf(this.currentBalance));
     }
 
 
