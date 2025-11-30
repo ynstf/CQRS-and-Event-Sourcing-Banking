@@ -2,7 +2,9 @@ package ma.atif.cqrs.commands.controllers;
 
 
 import ma.atif.cqrs.commands.commands.AddAccountCommand;
+import ma.atif.cqrs.commands.commands.CreditAccountCommand;
 import ma.atif.cqrs.commands.dto.AddAccountRequestDTO;
+import ma.atif.cqrs.commands.dto.CreditAccountDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,12 +41,24 @@ public class AccountCommandRestController {
         return response;
     }
 
-    @ExceptionHandler(Exception.class)
-    public String exceptionHandler(Exception exception){
-        return exception.getMessage();
-    }
     @GetMapping("/events/{accountId}")
     public Stream eventStore(@PathVariable String accountId){
         return eventStore.readEvents(accountId).asStream();
+    }
+
+    @PostMapping("/credit")
+    public CompletableFuture<String> creditAccount(@RequestBody CreditAccountDTO request){
+        CompletableFuture<String> result = this.commandGateway.send(new CreditAccountCommand(
+                request.accountId(),
+                request.amount(),
+                request.Currency()
+        ));
+        return result;
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    public String exceptionHandler(Exception exception){
+        return exception.getMessage();
     }
 }
