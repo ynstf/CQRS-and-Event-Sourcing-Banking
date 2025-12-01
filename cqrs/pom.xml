@@ -63,6 +63,11 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.7.2</version>
+        </dependency>
 
         <!-- Axon Framework (Spring Boot starter, 4.x line) -->
         <dependency>

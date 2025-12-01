@@ -6,6 +6,7 @@ import ma.atif.cqrs.query.entities.Account;
 import ma.atif.cqrs.query.entities.AccountOperation;
 import ma.atif.cqrs.query.queries.GetAccountStatementQuery;
 import ma.atif.cqrs.query.queries.GetAllAccounts;
+import ma.atif.cqrs.query.queries.WatchEventQuery;
 import ma.atif.cqrs.query.repository.AccountRepository;
 import ma.atif.cqrs.query.repository.OperationRepository;
 import org.axonframework.queryhandling.QueryHandler;
@@ -33,5 +34,10 @@ public class AccountQueryHandler {
         Account account = accountRepository.findById(query.getAccountId()).get();
         List<AccountOperation> operations = operationRepository.findByAccountId(query.getAccountId());
         return new AccountStatementResponseDTO(account, operations);
+    }
+
+    @QueryHandler
+    public AccountOperation on(WatchEventQuery query){
+        return AccountOperation.builder().build();
     }
 }

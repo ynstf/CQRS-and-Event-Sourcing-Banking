@@ -18,11 +18,14 @@ public class AccountEventHandler {
 
     private AccountRepository accountRepository;
     private OperationRepository operationRepository;
+    private QueryUpdateEmitter queryUpdateEmitter;
 
     public AccountEventHandler(AccountRepository accountRepository, OperationRepository operationRepository, QueryUpdateEmitter queryUpdateEmitter) {
         this.accountRepository = accountRepository;
         this.operationRepository = operationRepository;
+        this.queryUpdateEmitter = queryUpdateEmitter;
     }
+
 
     @EventHandler
     public void on(AccountCreatedEvent event, EventMessage eventMessage){
@@ -66,6 +69,7 @@ public class AccountEventHandler {
         AccountOperation savedOperation = operationRepository.save(accountOperation);
         account.setBalance(account.getBalance()-accountOperation.getAmount());
         accountRepository.save(account);
+        queryUpdateEmitter.emit(e->true, accountOperation);
     }
 
     @EventHandler
@@ -81,6 +85,7 @@ public class AccountEventHandler {
         AccountOperation savedOperation = operationRepository.save(accountOperation);
         account.setBalance(account.getBalance()+accountOperation.getAmount());
         accountRepository.save(account);
+        queryUpdateEmitter.emit(e->true, accountOperation);
     }
 
 
